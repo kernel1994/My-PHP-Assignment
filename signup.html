@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>注册</title>
+
+    <link rel="stylesheet" href="./asset/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+    <form class="col-sm-offset-4 col-sm-4 form-horizontal" role="form" name="signup" method="post">
+       <label id="form-label"></label>
+        <fieldset>
+            <div class="panel">
+                <div class="panel-body m15">
+
+                    <div class="form-group">
+                       <label for="username">昵称</label>
+                        <div class="input-group">
+						<span class="input-group-addon">
+						<span class="glyphicon glyphicon-user"></span>
+						</span>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名"
+                                   value="王二狗" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" id="email-label">邮箱</label>
+                        <div class="input-group">
+						<span class="input-group-addon">
+						<span class="glyphicon glyphicon-envelope"></span>
+						</span>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="请输入邮箱"
+                                   value="weg@h5.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                       <label for="password">密码</label>
+                        <div class="input-group">
+						<span class="input-group-addon">
+						<span class="glyphicon glyphicon-lock"></span>
+						</span>
+                            <input type="password" class="form-control" id="password" name="password"
+                                   value="123" placeholder="请输入密码" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">请选择角色</label>
+                        <select id="role" name="role" class="form-control">
+                            <option v-for="role in roles" v-bind="{value: role.id}">{{ role.name }}</option>
+                            <!--<option value="0">简历提交者</option>-->
+                            <!--<option value="1">简历查询者</option>-->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary btn-block" id="signup">注册</button>
+                    </div>
+                    <span><a href="login.html">登录</a></span>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+
+<script src="./asset/js/jquery-2.1.3.min.js"></script>
+<script src="./asset/js/bootstrap.min.js"></script>
+<script src="./asset/js/vue.min.js"></script>
+<script src="./asset/js/app.js"></script>
+<script>
+    $(function () {
+        var vm = new Vue({
+            el: '#role',
+
+            data: {
+                roles: []
+            }
+        });
+
+        $.get('getRoles.php', function (result) {
+            console.log(result);
+            var o = JSON.parse(result);
+            if (o.errNum != 0) {
+                console.log(o.retMsg);
+            } else {
+                console.log(o.retMsg);
+                vm.roles = o.retData;
+            }
+        });
+    });
+</script>
+<script>
+    $('#email').blur(function () {
+        var email = $('#email').val();
+
+        if (isEmpty(email)) {
+            console.log("邮箱必填");
+            $('#email-label').html('<font color="red">邮箱必填</font>');
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            console.log("邮箱格式错误");
+            $('#email-label').html('<font color="red">邮箱格式错误</font>');
+            return;
+        }
+
+        $.get(`emailCheck.php?email=${email}`, function (result) {
+            console.log(result);
+            var o = JSON.parse(result);
+            if (o.errNum != 0) {
+                console.log(o.retMsg);
+                $('#email-label').html(`<font color="red">${o.retMsg}</font>`);
+            } else {
+                console.log(o.retMsg);
+                $('#email-label').html(`<font color="green">${o.retMsg}</font>`);
+            }
+        });
+    });
+
+    $('#signup').click(function () {
+        var email = $('#email').val();
+        var password = $('#password').val();
+        var username = $('#username').val();
+        var role = $('#role').val();
+
+        if (isEmpty(email) || isEmpty(password) || isEmpty(username) || isEmpty(role)) {
+            console.log("表单填写不完整" + email + ' : ' + password);
+            $('#form-label').html('<font color="red">表单填写不完整</font>');
+            return;
+        }
+
+        var id = createRandomStr(32);
+
+        $.post('signup.php', {id: id, email: email, password: password, username: username, role: role}, function (result) {
+            console.log(result);
+            var o = JSON.parse(result);
+
+            if (o.errNum != 0) {
+                console.log(o.retMsg);
+                $('#email-label').html(`<font color="red">${o.retMsg}</font>`);
+            } else {
+                console.log(o.retMsg);
+//                window.location.replace(o.retData.reLink);
+                $('#form-label').html(`<font color="green">${o.retMsg}</font>`);
+            }
+        });
+
+    });
+</script>
+</body>
+</html>
