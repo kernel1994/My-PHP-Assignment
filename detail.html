@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>个人简历</title>
+
+    <link rel="stylesheet" href="./asset/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./asset/css/app.css">
+</head>
+<body>
+<!--这个页面具有双重功能-->
+<!--1. 简历提交者可以-->
+    <!--1.1. 以前未提交过，新填写交简历-->
+    <!--1.2. 以前提交过，则修改简历信息-->
+<!--2. 简历查询者-->
+    <!--2.1. 查看提交者的简历信息-->
+<!--看似很将一个页面复用提高了效率，减少了重复代码，-->
+<!--实则有不同的逻辑混杂在一个页面内，页面需要的信息，-->
+<!--和服务器返回的信息，根据条件的不同也不尽相同，-->
+<!--这样无疑会使逻辑混乱，代码结构不清晰。-->
+<!--这次这个作业在此处花的时间几乎等于这个作业其他模块的时间之和，-->
+<!--数据来来回回，变来变去，一会儿变成S 形，一会儿变成B 形，-->
+<!--耗费了我大量时间和精力，垃圾想法，毁我青春。看似精巧，实则愚蠢。-->
+<div id="nav"></div>
+<div class="container">
+    <form id="form">
+        <table class="table table-bordered">
+            <thead><h1 class="text-center">{{ name }} 的简历表</h1></thead>
+            <tbody>
+            <tr>
+                <td>
+                    <label for="name" class="col-sm-2 control-label">姓名</label>
+                    <input type="text" class="form-control" id="name" placeholder="姓名" v-model="name">
+                </td>
+                <td style="width: 90px;">
+                    <label for="gender" class="col-sm-2 control-label" style="width: 80px;">性别</label>
+                    <select id="gender" class="form-control" v-model="checkedGender">
+                        <option v-for="gender in genders" v-bind:value="{{ gender }}">{{ gender }}</option>
+                    </select>
+                </td>
+                <td>
+                    <label for="age" class="col-sm-2 control-label">年龄</label>
+                    <select id="age" class="form-control" v-model="age">
+                        <option v-for="n in 40" v-bind:value="{{ n }}">{{ n + 18 }}</option>
+                    </select>
+                </td>
+                <td rowspan="3" id="user-pic">
+                    <label for="real-pic" class="col-sm-2 control-label" style="width: 80px;">照片</label>
+                    <img id="real-pic" src="{{ picPath }}" alt="user img" style="width: 150px;">
+                </td>
+
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <label for="email" class="col-sm-2 control-label">邮箱</label>
+                    <input type="email" class="form-control" id="email" placeholder="邮箱" v-model="email">
+                </td>
+                <td>
+                    <label for="phone" class="col-sm-2 control-label">电话</label>
+                    <input type="text" class="form-control" id="phone" placeholder="电话"  v-model="phone">
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="3">
+                    <label for="skill" class="col-sm-2 control-label">技能</label>
+                    <div id="skill" class="checkbox">
+                        <label class="checkbox-inline" v-for="skill in skills">
+                            <input class="skill" type="checkbox" value="{{ skill }}" v-model="checkedSkills"> {{ skill }}
+                        </label>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4">
+                    <label for="self-summary" class="col-sm-2 control-label">自我总结</label>
+                    <textarea id="self-summary" class="form-control" rows="3"  v-model="selfSummary"></textarea>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4">
+                    <label for="other-opinion" class="col-sm-2 control-label">修改意见</label>
+                    <textarea id="other-opinion" class="form-control" rows="3"  v-model="otherOpinion" disabled></textarea>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4" class="text-center">
+                    <button id="submit-resume-btn" type="button" class="btn btn-primary">提交简历</button>
+                    <button id="submit-opinion-btn" type="button" class="btn btn-primary">提交意见</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+
+    <!-- Small modal -->
+    <div id="my-modal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <h4 class="modal-title" id="mySmallModalLabel">提交结果</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End small modal -->
+    <form action="uploadImg.php" id="upload-img-form" name="uploadform" enctype="multipart/form-data" method="post" target="uploadTarget">
+        <input id="upload-img-input" name="img" type="file" style="width: 0; height: 0;">
+        <input type="hidden" id="upload-img-id" name="upload-img-id" value="">
+    </form>
+    <iframe src="about:blank" id="uploadTarget" name="uploadTarget" frameborder="0" style="display: none; visibility: hidden;"></iframe>
+</div>
+
+<script src="./asset/js/jquery-2.1.3.min.js"></script>
+<script src="./asset/js/bootstrap.min.js"></script>
+<script src="./asset/js/vue.min.js"></script>
+<script src="./asset/js/app.js"></script>
+<script>
+    var vmForm;
+    var resumeId;
+    var modal = $('#my-modal');
+    const initPicPath = './userImgs/0.jpg';
+$(function () {
+    $('#nav').load('nav-bar.html');
+
+    console.log(window.location.search);
+    resumeId = window.location.search.substring(4);
+    console.log(resumeId);
+
+    vmForm = new Vue({
+        el: '#form',
+
+        data: {
+            formData: {
+//                name: "吴老二",
+//                gender: "",
+//                age: 18,
+//                email: "",
+//                phone: "",
+//                skills: "",
+//                picPath: "",
+//                selfSummary: "",
+//                otherOpinion: ""
+            },
+
+            name: "",
+            age: 20,
+            genders: ['男', '女', '其他'],
+            checkedGender: "男",
+            userPic: "",
+            picPath: initPicPath,
+            email: "",
+            phone: "",
+            selfSummary: "",
+            otherOpinion: "",
+            skills: [
+                'Andorid',
+                'iOS',
+                'C/C++',
+                'Python',
+                'JavaScript',
+                'Web',
+                'J2EE'
+            ],
+            checkedSkills: []
+        }
+    });
+
+    $.post('view.php', {id: resumeId}, function (result) {
+        console.log(result);
+        var o = JSON.parse(result);
+
+        console.log(o.editable);
+        // 表单是否可编辑，提交者此值为true，查询者为false
+        var edit = o.editable || false;
+        if (edit) {
+            $('#submit-opinion-btn').addClass('hidden');
+        } else {
+            $('#submit-resume-btn').addClass('hidden');
+        }
+
+        if (o.errNum != 0) {
+            console.log(o.retMsg);
+        } else {
+            console.log(o.retMsg);
+
+            vmForm.name = o.retData[0]['name'];
+            vmForm.age = o.retData[0]['age'];
+            vmForm.checkedGender = o.retData[0]['gender'];
+            vmForm.email = o.retData[0]['email'];
+            vmForm.phone = o.retData[0]['phone'];
+            vmForm.picPath = o.retData[0]['picPath'];
+            vmForm.selfSummary = o.retData[0]['selfSummary'];
+            vmForm.otherOpinion = o.retData[0]['otherOpinion'];
+            vmForm.checkedSkills = JSON.parse(o.retData[0]['skills']);
+
+
+            console.log(vmForm.name);
+            console.log(vmForm.checkedGender);
+            console.log(vmForm.age);
+            console.log(vmForm.email);
+            console.log(vmForm.phone);
+            console.log(vmForm.selfSummary);
+            console.log(vmForm.otherOpinion);
+            console.log(vmForm.checkedSkills);
+
+            $('.skill').attr('disabled', !edit);
+            $('.form-control').attr('disabled', !edit);
+            $('#other-opinion').attr('disabled', edit);
+        }
+    });
+
+    $('#submit-opinion-btn').click(function () {
+        var opinion = vmForm.otherOpinion;
+        console.log(opinion);
+
+        $.post('updateOpinion.php', {id: resumeId, opinion: opinion}, function (result) {
+            console.log(result);
+            var o = JSON.parse(result);
+
+            if (o.errNum != 0) {
+                console.log(o.retMsg);
+                modal.find('.modal-body').html(`<strong class="text-danger">${o.retMsg}</strong>`);
+                modal.modal('show');
+            } else {
+                console.log(o.retMsg);
+                modal.find('.modal-body').html(`<strong class="text-success">${o.retMsg}</strong>`);
+                modal.modal('show');
+            }
+        });
+    });
+
+});
+
+// 生成随机id 字符串
+var id = createRandomStr(32);
+$('#submit-resume-btn').click(function () {
+    var name = vmForm.name,
+            gender = vmForm.checkedGender,
+            age = vmForm.age,
+            email = vmForm.email,
+            phone = vmForm.phone,
+            picPath = vmForm.picPath,
+            selfSummary = vmForm.selfSummary,
+            otherOpinion = vmForm.otherOpinion,
+            skill = JSON.stringify(vmForm.checkedSkills);
+
+    console.log(resumeId);
+    console.log(name);
+    console.log(gender);
+    console.log(age);
+    console.log(email);
+    console.log(phone);
+    console.log(picPath);
+    console.log(selfSummary);
+    console.log(otherOpinion);
+    console.log(skill);
+
+    if ($('#real-pic').attr('src') == initPicPath) {
+        modal.find('.modal-body').html(`<strong class="text-danger">必须上传照片</strong>`);
+        modal.modal('show');
+    } else {
+    $.post('uploadResume.php', {
+        id: resumeId || id,
+        name: name,
+        gender: gender,
+        age: age,
+        email: email,
+        picPath: picPath, // TODO 对于更改照片和 查看者不能点击选择照片未完成
+        phone: phone,
+        selfSummary: selfSummary,
+        otherOpinion: otherOpinion,
+        skill: skill
+    }, function (result) {
+        console.log(result);
+        var o = JSON.parse(result);
+        if (o.errNum != 0) {
+            console.log(o.retMsg);
+        } else {
+            console.log(o.retMsg);
+
+            modal.find('.modal-body').html(`<strong class="text-success">${o.retMsg}</strong>`);
+            modal.modal('show');
+
+            $('#upload-img-id').val(id);
+            console.log($('#upload-img-id').val());
+            $('#upload-img-form').submit();
+        }
+    });}
+});
+
+$('#user-pic').click(function () {
+    $('#upload-img-input').click();
+});
+
+var ext = 'jpg';
+$('#upload-img-input').change(function () {
+    $('#upload-img-id').val(id);
+    ext = $('#upload-img-input').val().replace(/.+\./, "");
+    console.log(ext);
+    $('#upload-img-form').submit();
+});
+
+$('#uploadTarget').load(function () {
+    $.post('getImg.php', {id: id, ext: ext}, function (result) {
+        console.log(result);
+        var o = JSON.parse(result);
+        if (o.errNum != 0) {
+            console.log(o.retMsg);
+            $('#real-pic').attr('src', o.retData.picPath);
+        } else {
+            console.log(o.retMsg);
+            $('#real-pic').attr('src', o.retData.picPath);
+        }
+    });
+});
+</script>
+</body>
+</html>

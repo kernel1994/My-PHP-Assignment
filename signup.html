@@ -100,13 +100,13 @@
 
         if (isEmpty(email)) {
             console.log("邮箱必填");
-            $('#email-label').html('<font color="red">邮箱必填</font>');
+            $('#email-label').html('<span style="color: red; ">邮箱必填</span>');
             return;
         }
 
         if (!isValidEmail(email)) {
             console.log("邮箱格式错误");
-            $('#email-label').html('<font color="red">邮箱格式错误</font>');
+            $('#email-label').html('<span style="color: red; ">邮箱格式错误</span>');
             return;
         }
 
@@ -115,10 +115,10 @@
             var o = JSON.parse(result);
             if (o.errNum != 0) {
                 console.log(o.retMsg);
-                $('#email-label').html(`<font color="red">${o.retMsg}</font>`);
+                $('#email-label').html(`<span style="color: red; ">${o.retMsg}</span>`);
             } else {
                 console.log(o.retMsg);
-                $('#email-label').html(`<font color="green">${o.retMsg}</font>`);
+                $('#email-label').html(`<span style="color: green; ">${o.retMsg}</span>`);
             }
         });
     });
@@ -131,7 +131,7 @@
 
         if (isEmpty(email) || isEmpty(password) || isEmpty(username) || isEmpty(role)) {
             console.log("表单填写不完整" + email + ' : ' + password);
-            $('#form-label').html('<font color="red">表单填写不完整</font>');
+            $('#form-label').html('<span style="color: red; ">表单填写不完整</span>');
             return;
         }
 
@@ -143,11 +143,11 @@
 
             if (o.errNum != 0) {
                 console.log(o.retMsg);
-                $('#email-label').html(`<font color="red">${o.retMsg}</font>`);
+                $('#email-label').html(`<span style="color: red; ">${o.retMsg}</span>`);
             } else {
                 console.log(o.retMsg);
-//                window.location.replace(o.retData.reLink);
-                $('#form-label').html(`<font color="green">${o.retMsg}</font>`);
+                window.location.replace(o.retData.reLink);
+                $('#form-label').html(`<span style="color: green; ">${o.retMsg}</span>`);
             }
         });
 

@@ -28,9 +28,14 @@ if ($email && $password) {
         $row = $result->fetch_assoc();
         
         if ($row['role'] == '简历提交者') {
-            $retData["retData"] = ["reLink" => "wirte.html"];
-        } elseif($row['role'] == '简历查询者') {
-            $retData["retData"] = ["reLink" => "view.html"];
+            $userID = $row['id'];
+            $sql2 = "select id from tb_resume where user = '$userID'";
+            $result2 = $con->query($sql2);
+            $row2 = $result2->fetch_assoc();
+            $retData["retData"] = ["reLink" => "detail.html?id=" . $row2['id']];
+
+        } elseif ($row['role'] == '简历查询者') {
+            $retData["retData"] = ["reLink" => "viewList.html"];
         }
         
         session_start();

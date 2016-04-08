@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>查看简历</title>
+
+    <link rel="stylesheet" href="./asset/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./asset/css/app.css">
+</head>
+<body>
+<div id="nav"></div>
+<div class="container">
+    <form id="form">
+        <table class="table table-bordered">
+            <thead><h1 class="text-center">{{ formData[0].name }} 的简历表</h1></thead>
+            <tbody>
+            <tr>
+                <td>
+                    <label for="name" class="col-sm-2 control-label">姓名</label>
+                    <input type="text" class="form-control" id="name" placeholder="姓名" v-model="formData[0].name">
+                </td>
+                <td style="width: 90px;">
+                    <label for="gender" class="col-sm-2 control-label" style="width: 80px;">性别</label>
+                    <input type="text" class="form-control" id="gender" placeholder="性别" v-model="formData[0].gender">
+                </td>
+                <td>
+                    <label for="age" class="col-sm-2 control-label">年龄</label>
+                    <input type="text" class="form-control" id="age" placeholder="年龄" v-model="formData[0].age">
+                </td>
+                <td rowspan="3" id="user-pic">
+                    <label for="real-pic" class="col-sm-2 control-label" style="width: 80px;">照片</label>
+                    <img id="real-pic" src="{{ formData[0].picPath }}" alt="user img" style="width: 150px;">
+                </td>
+
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <label for="email" class="col-sm-2 control-label">邮箱</label>
+                    <input type="email" class="form-control" id="email" placeholder="邮箱" v-model="formData[0].email">
+                </td>
+                <td>
+                    <label for="phone" class="col-sm-2 control-label">电话</label>
+                    <input type="text" class="form-control" id="phone" placeholder="电话"  v-model="formData[0].phone">
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="3">
+                    <label class="col-sm-2 control-label">技能</label>
+                    <p>{{ formData[0].skills }}</p>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4">
+                    <label for="self-summary" class="col-sm-2 control-label">自我总结</label>
+                    <textarea id="self-summary" class="form-control" rows="3"  v-model="formData[0].selfSummary"></textarea>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4">
+                    <label for="other-opinion" class="col-sm-2 control-label">修改意见</label>
+                    <textarea id="other-opinion" class="form-control" rows="3"  v-model="formData[0].otherOpinion"></textarea>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4" class="text-center">
+                    <button id="submit-opinion-btn" type="button" class="btn btn-primary">提交意见</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+
+    <!-- Small modal -->
+    <div id="my-modal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <h4 class="modal-title" id="mySmallModalLabel">提交意见</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End small modal -->
+</div>
+
+<script src="./asset/js/jquery-2.1.3.min.js"></script>
+<script src="./asset/js/bootstrap.min.js"></script>
+<script src="./asset/js/vue.min.js"></script>
+<script src="./asset/js/app.js"></script>
+<script>
+    $(function () {
+        $('#nav').load('nav-bar.html');
+
+        console.log(window.location.search);
+        var id = window.location.search.substring(4);
+        console.log(id);
+
+        var vmForm = new Vue({
+            el: '#form',
+
+            data: {
+                formData: {
+//                name: "吴老二",
+//                gender: "",
+//                age: 18,
+//                email: "",
+//                phone: "",
+//                skills: "",
+//                picPath: "",
+//                selfSummary: "",
+//                otherOpinion: ""
+                },
+
+                name: "",
+                age: 20,
+                genders: ['男', '女', '其他'],
+                checkedGender: "男",
+                userPic: "",
+                email: "",
+                phone: "",
+                selfSummary: "",
+                otherOpinion: "",
+                skills: [
+                    'Andorid',
+                    'iOS',
+                    'C/C++',
+                    'Python',
+                    'JavaScript',
+                    'Web',
+                    'J2EE'
+                ],
+                checkedSkills: []
+            }
+        });
+
+        $.post('view.php', {id: id}, function (result) {
+            console.log(result);
+            var o = JSON.parse(result);
+
+            if (o.errNum != 0) {
+                console.log(o.retMsg);
+            } else {
+                console.log(o.retMsg);
+                vmForm.formData = o.retData;
+                $('.form-control').attr('readonly', !o.editable);
+                $('#other-opinion').attr('readonly', o.editable);
+            }
+        });
+
+        $('#submit-opinion-btn').click(function () {
+            var opinion = vmForm.formData[0].otherOpinion;
+            console.log(opinion);
+
+            $.post('updateOpinion.php', {id: id, opinion: opinion}, function (result) {
+                console.log(result);
+                var o = JSON.parse(result);
+
+                var modal = $('#my-modal');
+                if (o.errNum != 0) {
+                    console.log(o.retMsg);
+                    modal.find('.modal-body').text(`<strong class="text-danger">${o.retMsg}</strong>`);
+                    modal.modal('show');
+                } else {
+                    console.log(o.retMsg);
+                    modal.find('.modal-body').html(`<strong class="text-success">${o.retMsg}</strong>`);
+                    modal.modal('show');
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>

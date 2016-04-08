@@ -6,3 +6,8 @@
 #submit-btn {
     width: 200px;
 }
+
+.hidden {
+    display: none;
+    visibility: hidden;
+}

@@ -22,7 +22,7 @@
 						<span class="glyphicon glyphicon-envelope"></span>
 						</span>
                             <input type="email" class="form-control" id="email" name="email" placeholder="请输入邮箱"
-                                   value="ljf@h5.com" required>
+                                   value="wle@h5.com" required>
                         </div>
                     </div>
 
@@ -66,11 +66,11 @@
             var o = JSON.parse(result);
             if (o.errNum != 0) {
                 console.log(o.retMsg);
-                $('#form-label').html(`<font color="red">${o.retMsg}</font>`);
+                $('#form-label').html(`<span style="color: red; ">${o.retMsg}</span>`);
             } else {
                 console.log(o.retMsg);
                 window.location.replace(o.retData.reLink);
-                $('#form-label').html(`<font color="green">${o.retMsg}</font>`);
+                $('#form-label').html(`<span style="color: green; ">${o.retMsg}</span>`);
             }
         });
     });

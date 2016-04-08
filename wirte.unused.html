@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="./asset/css/app.css">
 </head>
 <body>
+    <div id="nav"></div>
     <div class="container">
        <form id="form">
         <table class="table table-bordered">
@@ -16,7 +17,7 @@
           <tbody>
               <tr>
                   <td>
-                      <label for="" class="col-sm-2 control-label">姓名</label>
+                      <label for="name" class="col-sm-2 control-label">姓名</label>
                       <input type="text" class="form-control" id="name" placeholder="姓名" v-model="name">
                   </td>
                   <td style="width: 90px;">
@@ -32,7 +33,7 @@
                       </select>
                   </td>
                   <td rowspan="3" id="user-pic">
-                      <label for="" class="col-sm-2 control-label" style="width: 80px;">照片</label>
+                      <label for="real-pic" class="col-sm-2 control-label" style="width: 80px;">照片</label>
                       <img id="real-pic" src="./userImgs/0.jpg" alt="user img" style="width: 150px;">
                   </td>
                   
@@ -51,10 +52,10 @@
               
               <tr>
                   <td colspan="3">
-                    <label for="" class="col-sm-2 control-label">技能</label>
+                    <label for="skill" class="col-sm-2 control-label">技能</label>
                     <div id="skill" class="checkbox">
                           <label class="checkbox-inline" v-for="skill in skills">
-                              <input type="checkbox" value="{{ skill }}" v-model="checkedSkills"> {{ skill }} 
+                              <input type="checkbox" value="{{ skill }}" v-model="checkedSkills"> {{ skill }}
                           </label>
                      </div>
                   </td>
@@ -98,6 +99,8 @@
     var vmFormData;
     
     $(function () {
+        $('#nav').load('nav-bar.html');
+
         vmFormData = new Vue({
             el: '#form',
 
