@@ -9,4 +9,4 @@ session_start();
 if(isset($_SESSION['user'])) {
     unset($_SESSION['user']);
 }
-header("Location: http://localhost/h5-php/login.html");
+header("Location: /h5-php/login.html");

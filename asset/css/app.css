@@ -1,7 +1,9 @@
+/*
 #user-pic, #real-pic {
     width: 150px;
     height: 280px;
 }
+*/
 
 #submit-btn {
     width: 200px;
@@ -10,4 +12,10 @@
 .hidden {
     display: none;
     visibility: hidden;
+}
+
+fieldset {
+    padding: .35em .625em .75em;
+    margin: 10px 2px 0;
+    border: 1px solid silver;
 }
