@@ -27,33 +27,40 @@
     <form id="form">
 
         <h2 class="text-center">{{ name }} 的简历表</h2>
+        
+    <div class="row">
+        <div class="col-md-9">
+            <fieldset>
+                <legend>基本信息</legend>
+                
+                <label for="name" class="col-sm-2 control-label">姓名</label>
+                <input type="text" class="form-control" id="name" placeholder="姓名" v-model="name">
 
-        <fieldset>
-            <legend>基本信息</legend>
+                <label for="gender" class="col-sm-2 control-label" style="width: 80px;">性别</label>
+                <select id="gender" class="form-control" v-model="checkedGender">
+                    <option v-for="gender in genders" v-bind:value="{{ gender }}">{{ gender }}</option>
+                </select>
 
-            <label for="name" class="col-sm-2 control-label">姓名</label>
-            <input type="text" class="form-control" id="name" placeholder="姓名" v-model="name">
+                <label for="age" class="col-sm-2 control-label">年龄</label>
+                <select id="age" class="form-control" v-model="age">
+                    <option v-for="n in 40" v-bind:value="{{ n }}">{{ n + 18 }}</option>
+                </select>
+                <br><br>
+            </fieldset>
+        </div>
 
-            <label for="gender" class="col-sm-2 control-label" style="width: 80px;">性别</label>
-            <select id="gender" class="form-control" v-model="checkedGender">
-                <option v-for="gender in genders" v-bind:value="{{ gender }}">{{ gender }}</option>
-            </select>
-
-            <label for="age" class="col-sm-2 control-label">年龄</label>
-            <select id="age" class="form-control" v-model="age">
-                <option v-for="n in 40" v-bind:value="{{ n }}">{{ n + 18 }}</option>
-            </select>
-
-        </fieldset>
-
-        <fieldset>
-            <legend>个人照片</legend>
-            <div id="user-pic" class="text-center">
-                <!--        <label for="real-pic" class="col-sm-2 control-label" style="width: 80px;">照片</label>-->
-                <img id="real-pic" src="{{ picPath }}" alt="user img" style="width: 150px;">
-            </div>
-        </fieldset>
-
+        <div class="col-md-3">
+            <fieldset>
+                <legend>个人照片</legend>
+                
+                <div id="user-pic" class="text-center">
+                    <!--        <label for="real-pic" class="col-sm-2 control-label" style="width: 80px;">照片</label>-->
+                    <img id="real-pic" src="{{ picPath }}" alt="user img" style="width: 150px;">
+                </div>
+            </fieldset>
+        </div>
+    </div>
+       
         <fieldset>
             <legend>联系方式</legend>
 
@@ -212,8 +219,13 @@
                 console.log(vmForm.otherOpinion);
                 console.log(vmForm.checkedSkills);
 
-                $('.skill').attr('disabled', !edit);
+                // 统一处理输入表单是否可编辑
                 $('.form-control').attr('disabled', !edit);
+                // 单独处理技能是否可编辑
+                $('.skill').attr('disabled', !edit);
+                // 单独处理更换头像是否可编辑
+                $('#upload-img-input').attr('disabled', !edit);
+                // 单独处理又该意见是否可编辑
                 $('#other-opinion').attr('disabled', edit);
             }
         });
